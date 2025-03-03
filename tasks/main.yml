@@ -1,0 +1,47 @@
+---
+- name: Wipe existing conda environment
+  ansible.builtin.file:
+    path: "{{ ml_basic_env_path }}"
+    state: absent
+  when: ml_basic_env_wipe
+
+- name: Copy conda environment description
+  ansible.builtin.copy:
+    src: "env.yml"
+    dest: /tmp/{{ ml_basic_env_name }}.yml
+    mode: "644"
+  register: ml_basic_env_updated
+
+- name: Create conda environment
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.shell: |
+    source /etc/profile.d/conda.sh
+    source /etc/profile.d/mamba.sh
+    export PIP_NO_CACHE_DIR=false
+    mamba env create -f /tmp/{{ ml_basic_env_name }}.yml -p {{ ml_basic_env_path }} && mamba clean --all -y
+  args:
+    executable: /bin/bash
+    creates: "{{ ml_basic_env_path }}"
+
+  register: ml_basic_env_create
+
+- name: Update conda environment
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.shell: |
+    source /etc/profile.d/conda.sh
+    source /etc/profile.d/mamba.sh
+    export PIP_NO_CACHE_DIR=false
+    mamba env update --prune -f /tmp/{{ ml_basic_env_name }}.yml -p {{ ml_basic_env_path }} && mamba clean --all -y
+  args:
+    executable: /bin/bash
+  when: not ml_basic_env_create.changed and ml_basic_env_updated.changed
+
+- name: Make ipykernel available for Jupyter
+  ansible.builtin.shell: |
+    source /etc/profile.d/conda.sh
+    source /etc/profile.d/mamba.sh
+    mamba run -p {{ ml_basic_env_path }} python3 -m ipykernel install --prefix=/usr/local --name="{{ ml_basic_env_name }}" --display-name="{{ ml_basic_env_name }}" --env PATH "{{ ml_basic_env_path }}/bin:\$PATH"
+  args:
+    executable: /bin/bash
+    creates: /usr/local/share/jupyter/kernels/{{ ml_basic_env_name }}
+  when: ml_basic_create_ipykernel

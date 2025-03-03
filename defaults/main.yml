@@ -1,0 +1,5 @@
+---
+ml_basic_env_wipe: no
+ml_basic_env_name: ml-basic
+ml_basic_env_path: "{{ conda_prefix }}/envs/{{ ml_basic_env_name }}"
+ml_basic_create_ipykernel: yes
