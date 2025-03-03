@@ -1,7 +1,7 @@
 EWC Ansible Role ML Basic
 =========================
 
-Create a conda environment with the basic Machine Learning packages such as torch, xgboost, and scikit-learn. Check the `templat
+Create a conda environment with the basic Machine Learning packages such as torch, xgboost, and scikit-learn. Check `files/env.yml` for all the details on the software included.
 
 Requirements
 ------------
