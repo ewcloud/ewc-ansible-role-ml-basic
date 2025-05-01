@@ -18,7 +18,7 @@
     source /etc/profile.d/conda.sh
     source /etc/profile.d/mamba.sh
     export PIP_NO_CACHE_DIR=false
-    mamba env create -f /tmp/{{ ml_basic_env_name }}.yml -p {{ ml_basic_env_path }} && mamba clean --all -y
+    mamba env create -y -f /tmp/{{ ml_basic_env_name }}.yml -p {{ ml_basic_env_path }} && mamba clean --all -y
   args:
     executable: /bin/bash
     creates: "{{ ml_basic_env_path }}"
@@ -31,7 +31,7 @@
     source /etc/profile.d/conda.sh
     source /etc/profile.d/mamba.sh
     export PIP_NO_CACHE_DIR=false
-    mamba env update --prune -f /tmp/{{ ml_basic_env_name }}.yml -p {{ ml_basic_env_path }} && mamba clean --all -y
+    mamba env update --prune -y -f /tmp/{{ ml_basic_env_name }}.yml -p {{ ml_basic_env_path }} && mamba clean --all -y
   args:
     executable: /bin/bash
   when: not ml_basic_env_create.changed and ml_basic_env_updated.changed
